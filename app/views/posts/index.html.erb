@@ -1,0 +1,28 @@
+<% @posts.each do |post| %>
+
+    <h3><%= link_to post.title, post %></h3>
+    <p>
+      <%= post.description %>
+    </p>
+    <p>
+      <small>
+        <%= post.created_at.to_s(:long) %>
+        <% if is_admin? %>
+            (<%= link_to 'Edit', edit_post_path(post) %>
+            <%= link_to 'Destroy', post, :confirm => 'Are you sure?', :method => :delete %>            )
+        <% end %>
+      </small>
+    </p>
+    <p>
+      <small>
+        <%= post.comments.count %>&nbsp;comments.
+      </small>
+    </p>
+
+<% end %>
+
+<br/>
+
+<% if is_admin? %>
+    <%= link_to 'New Post', new_post_path %>
+<% end %>

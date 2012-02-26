@@ -1,0 +1,13 @@
+.social-links {
+    list-style: none;
+    height: 27px;
+}
+
+.social-links li {
+    float: left;
+}
+
+textarea {
+    width:600px;
+    height:200px;
+}

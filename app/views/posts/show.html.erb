@@ -1,0 +1,147 @@
+  <div id="fb-root"></div>
+  <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "//connect.facebook.net/ru_RU/all.js#xfbml=1";
+      fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));</script>
+
+
+<p id="notice"><%= notice %></p>
+
+
+
+<h3><%= @post.title %></h3>
+<p>
+  <%= @post.text %>
+</p>
+
+
+<p>
+  <small>
+    <%= @post.created_at.to_s(:long) %>
+    <% if is_admin? %>
+        (<%= link_to 'Edit', edit_post_path(@post) %>
+        <%= link_to 'Destroy', @post, :confirm => 'Are you sure?', :method => :delete %>)
+    <% end %>
+  </small>
+</p>
+
+<ul class="social-links">
+  <li>
+    <a href="https://twitter.com/share" class="twitter-share-button" data-url="<%= @tw_post_url %>" data-lang="ru" data-text="<%= @post.title %> <%= @tw_post_url %>">Твитнуть</a>
+    <script>!function(d, s, id) {
+        var js,fjs = d.getElementsByTagName(s)[0];
+        if (!d.getElementById(id)) {
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "//platform.twitter.com/widgets.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }
+    }(document, "script", "twitter-wjs");</script>
+  </li>
+
+  <li>
+    <div class="fb-like" data-send="false" data-width="450" data-show-faces="false"></div>
+  </li>
+  <li>
+    <script type="text/javascript"><!--
+document.write(VK.Share.button(false,{type: "round", text: "Мне нравится"}));
+--></script>
+  </li>
+</ul>
+
+<div style="clear:both;"></div>
+
+
+
+
+
+
+<h2>comments:</h2>
+<div id="comments">
+  <%= render :partial => "comment", :collection => @post.comments %>
+</div>
+
+
+
+<% if logged_in? %>
+    <%= form_for [@post, @new_comment],
+                 :html => {:'data-type' => 'html', :id => 'create_comment_form'},
+                 :remote => true do |f| %>
+
+        <%= f.text_area(:text, :class => "comment") %>
+        <div class="validation-error"></div>
+        <%= f.submit "comment" %>
+    <% end %>
+<% end %>
+
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        $('#create_comment_form')
+                .bind("ajax:beforeSend", function(evt, xhr, settings) {
+            var $submitButton = $(this).find('input[name="commit"]');
+
+            // Update the text of the submit button to let the user know stuff is happening.
+            // But first, store the original text of the submit button, so it can be restored when the request is finished.
+            $submitButton.data('origText', $(this).text());
+            $submitButton.text("Submitting...");
+
+        })
+                .bind("ajax:success", function(evt, data, status, xhr) {
+            var $form = $(this);
+
+            // Reset fields and any validation errors, so form can be used again, but leave hidden_field values intact.
+            $form.find('textarea,input[type="text"],input[type="file"]').val("");
+            $form.find('div.validation-error').empty();
+
+            // Insert response partial into page below the form.
+            $('#comments').append(xhr.responseText);
+
+        })
+                .bind('ajax:complete', function(evt, xhr, status) {
+            var $submitButton = $(this).find('input[name="commit"]');
+
+            // Restore the original submit button text
+            $submitButton.text($(this).data('origText'));
+        })
+                .bind("ajax:error", function(evt, xhr, status, error) {
+            var $form = $(this),
+                    errors,
+                    errorText;
+
+            try {
+                // Populate errorText with the comment errors
+                errors = $.parseJSON(xhr.responseText);
+            } catch(err) {
+                // If the responseText is not valid JSON (like if a 500 exception was thrown), populate errors with a generic error message.
+                errors = {message: "Please reload the page and try again"};
+            }
+
+            // Build an unordered list from the list of errors
+            errorText = "There were errors with the submission: \n<ul>";
+
+            for (error in errors) {
+                errorText += "<li>" + error + ': ' + errors[error] + "</li> ";
+            }
+
+            errorText += "</ul>";
+
+            // Insert error list into form
+            $form.find('div.validation-error').html(errorText);
+        });
+
+    });
+
+</script>

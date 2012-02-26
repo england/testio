@@ -1,0 +1,9 @@
+<p>
+  <%= comment.text %>
+</p>
+<p>
+<small>
+  <%= comment.user.nickname %>
+  (<%= comment.created_at.to_s(:long) %>)
+</small>
+</p>
